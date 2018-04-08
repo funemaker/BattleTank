@@ -2,6 +2,8 @@
 
 #include "TankPlayerController.h"
 #include "Tank.h"
+#include "Engine/World.h"
+#include "DrawDebugHelpers.h"
 
 
 void ATankPlayerController::BeginPlay()
@@ -35,6 +37,7 @@ void ATankPlayerController::AimTowardsCrosshair()
 	FVector HitLocation;  //out parameter
 
 	if (GetSightRayHitLocation(HitLocation)) {
+		UE_LOG(LogTemp, Warning, TEXT("Hit Location : %s"), *HitLocation.ToString());
 
 	//UE_LOG(LogTemp, Warning, TEXT("HitLocation: %s"), *HitLocation.ToString())
 	}
@@ -55,41 +58,52 @@ bool ATankPlayerController::GetSightRayHitLocation(FVector & OutHitLocation) con
 	auto CrosshairLocation = FVector2D(ViewportSizeX * CrosshairXLocation, ViewportSizeY * CrosshairYLocation);
 
 
-	UE_LOG(LogTemp, Warning, TEXT("CH Location: %s"), *CrosshairLocation.ToString())
-	//deproject screen position of crosshair to world direction
+//	UE_LOG(LogTemp, Warning, TEXT("CH Location: %s"), *CrosshairLocation.ToString())
 
-	//line trace along that look direction, see what we hit up to max range
+		//deproject screen position of crosshair to world direction
+	FVector LookDirection;
+	if (GetLookDirection(CrosshairLocation, LookDirection)) {
+	
+	//UE_LOG(LogTemp, Warning, TEXT("World Direction : %s"), *LookDirection.ToString());
 
-
-
-	/*
-	//ray-cast out to reach distance
-	FHitResult Hit;
-
-	//setup query parameters
-
-	FCollisionQueryParams TraceParameters = FCollisionQueryParams(FName(TEXT("")), false, GetControlledTank());
-
-	if (GetWorld()->LineTraceSingleByObjectType(
-
-		OUT Hit,
-		GetControlledTank()->GetActorLocation(),
-		GetControlledTank()->GetActorLocation() + GetControlledTank()->GetActorRotation().Vector() * 10000,
-		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
-		TraceParameters
-
-
-	)) {
-		return true;
-		UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *Hit.Actor->GetName());
-		OutHitLocation.X = Hit.ImpactPoint.X;
-		OutHitLocation.Y = Hit.ImpactPoint.Y;
-		OutHitLocation.Z = Hit.ImpactPoint.Z;
-	} else {
-	return false;
+		//ray-cast out to reach distance
+		return GetLookVectorHitLocation(LookDirection, OutHitLocation);
+		
+	
 	}
-	*/
-	OutHitLocation = FVector(1);
-	return true;
+	else {
+		return false;
+	}
+
+	
+	
+
+}
+
+bool ATankPlayerController::GetLookDirection(FVector2D CrosshairLocation, FVector & LookDirection) const
+{
+	FVector CameraWorldLocation; //to be discarded
+	return DeprojectScreenPositionToWorld(CrosshairLocation.X, CrosshairLocation.Y, CameraWorldLocation, LookDirection);
+
+}
+
+bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVector & HitLocation) const
+{
+
+	FHitResult Hit;
+	HitLocation = FVector::ZeroVector;
+	auto StartLocation = PlayerCameraManager->GetCameraLocation();
+	auto EndLocation = StartLocation + LookDirection * LineTraceRange;
+	bool Result;
+	//	FCollisionQueryParams TraceParameters = FCollisionQueryParams(FName(TEXT("")), false, GetControlledTank());
+	Result =  GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility);
+	if (Result) {
+	
+		HitLocation = Hit.Location;
+
+	}
+	//DrawDebugLine(GetWorld(), StartLocation, LookDirection * LineTraceRange, FColor::Red, false, 1.0F, 0, 5);
+	return Result;
+	
 }
 
