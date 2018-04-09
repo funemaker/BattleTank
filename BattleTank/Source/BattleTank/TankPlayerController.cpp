@@ -10,7 +10,7 @@ void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("My tank pawn is: %s"), *GetControlledTank()->GetName())
-		PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ATankPlayerController::Tick(float DeltaTime)
@@ -37,7 +37,8 @@ void ATankPlayerController::AimTowardsCrosshair()
 	FVector HitLocation;  //out parameter
 
 	if (GetSightRayHitLocation(HitLocation)) {
-		UE_LOG(LogTemp, Warning, TEXT("Hit Location : %s"), *HitLocation.ToString());
+		
+		GetControlledTank()->AimAt(HitLocation);
 
 	//UE_LOG(LogTemp, Warning, TEXT("HitLocation: %s"), *HitLocation.ToString())
 	}

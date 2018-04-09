@@ -2,6 +2,14 @@
 
 #include "TankAIController.h"
 #include "Tank.h"
+#include "Engine/World.h"
+
+void ATankAIController::Tick(float DeltaTime)
+{
+
+	AimTowardsPlayer();
+
+}
 
 void ATankAIController::BeginPlay()
 {
@@ -21,6 +29,8 @@ void ATankAIController::BeginPlay()
 	} else {
 	UE_LOG(LogTemp, Warning, TEXT("AI Reporting: player pawn is: %s"), *PlayerTank->GetName())
 	}
+
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 ATank * ATankAIController::GetControlledTank() const
@@ -31,5 +41,26 @@ ATank * ATankAIController::GetControlledTank() const
 ATank * ATankAIController::GetPlayerTank() const
 {
 	
+	return Cast<ATank>(GetWorld()->GetFirstPlayerController()->GetPawn());
+}
+
+void ATankAIController::AimTowardsPlayer()
+{
+
+	if (GetPlayerTank()) {
+
+		//TODO move towards player
+
+		GetControlledTank()->AimAt(GetPlayerTank()->GetActorLocation());
+
+		//Fire if ready to fire
+	}
+
+	
+
+}
+
+ATank * ATankAIController::GetPlayerTank()
+{
 	return Cast<ATank>(GetWorld()->GetFirstPlayerController()->GetPawn());
 }
