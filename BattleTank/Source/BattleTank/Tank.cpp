@@ -10,7 +10,7 @@
 // Sets default values
 ATank::ATank()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	// No need to protect pointer as added at construction
@@ -23,7 +23,7 @@ ATank::ATank()
 void ATank::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called to bind functionality to input
@@ -36,7 +36,7 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void ATank::AimAt(FVector HitLocation)
 {
 	TankAimingComponent->AimAt(HitLocation, LaunchSpeed);
-	}
+}
 
 void ATank::SetBarrelReference(UTankBarrel* BarrelToSet)
 {
@@ -51,19 +51,21 @@ void ATank::SetTurretReference(UTankTurret * TurretToSet)
 
 void ATank::Fire()
 {
-	
-	if (!Barrel) {
-		return;
+	bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
+	if (Barrel && isReloaded) {
+
+		isReloaded = false;
+		LastFireTime = FPlatformTime::Seconds();
+		//spawn projectile at barrel location
+		auto Projectile = GetWorld()->SpawnActor<AProjectile>(
+			ProjectileBlueprint,
+			Barrel->GetSocketLocation(FName("Muzzle")),
+			Barrel->GetSocketRotation(FName("Muzzle"))
+
+			);
+
+		Projectile->LaunchProjectile(LaunchSpeed);
 	}
 
-	//spawn projectile at barrel location
-	auto Projectile = GetWorld()->SpawnActor<AProjectile>(
-		ProjectileBlueprint,
-		Barrel->GetSocketLocation(FName("Muzzle")),
-		Barrel->GetSocketRotation(FName("Muzzle"))
-
-		);
-
-	Projectile->LaunchProjectile(LaunchSpeed);
 }
 
