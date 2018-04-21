@@ -65,6 +65,7 @@ void ATank::Fire()
 			);
 
 		Projectile->LaunchProjectile(LaunchSpeed);
+		
 	}
 
 }

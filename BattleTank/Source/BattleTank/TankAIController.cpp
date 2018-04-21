@@ -40,7 +40,7 @@ void ATankAIController::BeginPlay()
 
 void ATankAIController::AimTowardsPlayer()
 {
-	if (PlayerTank) {
+	if (PlayerTank && ControlledTank) {
 
 		//TODO move towards player
 
