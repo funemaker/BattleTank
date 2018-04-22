@@ -7,6 +7,8 @@
 #include "Tank.generated.h"
 
 class UTankAimingComponent;
+class UTankMovementComponent;
+
 class UTankBarrel;
 class UTankTurret;
 class AProjectile;
@@ -38,6 +40,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	UTankAimingComponent* TankAimingComponent;
+
+	UPROPERTY(BlueprintReadonly)
+	UTankMovementComponent * TankMovementComponent;
 
 	UPROPERTY(EditAnywhere, Category = Setup)
 		TSubclassOf<AProjectile> ProjectileBlueprint;
